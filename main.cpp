@@ -149,6 +149,22 @@ int main() {
     });
 
     std::cout << "Data generated." << std::endl;
+
+    {
+        std::cout << "Verifying correctness:" << std::endl;
+        auto reference = data;
+        std::sort(reference.begin(), reference.end());
+        std::cout << "Reference sort finished." << std::endl;
+
+        auto sorted = data;
+        quicksort(sorted.begin(), sorted.end());
+        std::cout << "Serial implementation correct: " << std::boolalpha << (sorted == reference) << std::endl;
+
+        sorted = data;
+        parallelQuicksort(sorted.begin(), sorted.end());
+        std::cout << "Parallel implementation correct: " << std::boolalpha << (sorted == reference) << std::endl;
+    }
+
     std::cout << "Running serial version:" << std::endl;
     std::cout << "Serial: " << time(5, nonParallel, data) << std::endl;
     std::cout << "Running parallel version:" << std::endl;
