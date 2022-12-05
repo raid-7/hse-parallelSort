@@ -87,10 +87,10 @@ It partition(It begin, It end, V ref) {
 
 template <class It>
 void quicksort(It begin, It end) {
-    if (begin < end) {
-        It refIt = begin + (end - begin) / 2;
+    if (begin < end && end - begin > 1) {
+        It refIt = begin + (end - begin - 1) / 2;
         It m = ::partition(begin, end, *refIt); // ADL sucks
-        quicksort(begin, m);
+        quicksort(begin, m + 1);
         quicksort(m + 1, end);
     }
 }
@@ -103,11 +103,11 @@ void parallelQuicksort(It begin, It end) {
             return;
         }
 
-        It refIt = begin + (end - begin) / 2;
+        It refIt = begin + (end - begin - 1) / 2;
         It m = ::partition(begin, end, *refIt);
         tbb::parallel_invoke(
             [begin, m]() {
-                parallelQuicksort(begin, m);
+                parallelQuicksort(begin, m + 1);
             },
             [m, end](){
                 parallelQuicksort(m + 1, end);
@@ -157,11 +157,11 @@ int main() {
         std::cout << "Reference sort finished." << std::endl;
 
         auto sorted = data;
-        quicksort(sorted.begin(), sorted.end());
+        nonParallel(sorted);
         std::cout << "Serial implementation correct: " << std::boolalpha << (sorted == reference) << std::endl;
 
         sorted = data;
-        parallelQuicksort(sorted.begin(), sorted.end());
+        parallel(sorted);
         std::cout << "Parallel implementation correct: " << std::boolalpha << (sorted == reference) << std::endl;
     }
 
